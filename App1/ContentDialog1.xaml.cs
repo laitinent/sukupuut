@@ -24,7 +24,7 @@ namespace App1
 
         public int? Year { get => year;
             set {
-                if (value != null)
+                if (value != null && year >= calendar.MinYear.Year)
                 {
                     year = value;
                     DateTime dt = new DateTime((int)year, 6, 15);
@@ -55,6 +55,7 @@ namespace App1
         {
             Henkilö h = new Henkilö(etunimiTextBox.Text, sukunimiTextBox.Text);
             h.Syntymäaika = calendar.Date.DateTime;
+            // TODO: kuolinaika, paikat
             return h;
         }
     }

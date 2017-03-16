@@ -59,6 +59,9 @@ namespace App1
                 if (e.PreviousExecutionState == ApplicationExecutionState.Terminated)
                 {
                     //TODO: Load state from previously suspended application
+                    
+                    var page1 = rootFrame.Content as MainPage;
+                    
                 }
 
                 // Place the frame in the current Window
@@ -100,6 +103,7 @@ namespace App1
         {
             var deferral = e.SuspendingOperation.GetDeferral();
             //TODO: Save application state and stop any background activity
+         
             deferral.Complete();
         }
     }

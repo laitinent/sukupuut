@@ -1,21 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Sukupuut
 {
+    [DataContract(Name = "Henkilö", Namespace = "http://www.contoso.com")]
     public class Henkilö
-    {
-        Henkilö isä;
-        Henkilö äiti;
-        string etunimi;
+    {                       
+        string etunimi;       
         string sukunimi;
         string patronyymi;
+        
         DateTime syntymäaika;
         DateTime kuolinaika;
         string syntymäpaikka;
+
+        int isä_index = -1;
+        int äiti_index = -1;
 
         public override string ToString()
         {
@@ -33,36 +37,52 @@ namespace Sukupuut
         {
             this.etunimi = etunimi;
             this.sukunimi = sukunimi;
-            isä = null;
-            äiti = null;
+            
         }
 
-        public Henkilö Isä
+        /// <summary>
+        /// Compare
+        /// </summary>
+        /// <param name="toinen"></param>
+        /// <returns>true if match</returns>
+        public bool isSame(Henkilö toinen)
+        {
+            if (Etunimi.CompareTo(toinen.Etunimi) == 0 &&
+                Sukunimi.CompareTo(toinen.Sukunimi) == 0 &&
+                Syntymäaika.CompareTo(toinen.Syntymäaika) == 0) { 
+                return true;
+            }
+            return false;
+        }
+
+        [DataMember]
+        public int Isä
         {
             get
             {
-                return isä;
+                return isä_index;
             }
 
             set
             {
-                isä = value;
+                isä_index = value;
             }
         }
-
-        public Henkilö Äiti
+        [DataMember]
+        public int Äiti
         {
             get
             {
-                return äiti;
+                return äiti_index;
             }
 
             set
             {
-                äiti = value;
+                äiti_index = value;
             }
         }
 
+        [DataMember]
         public string Etunimi
         {
             get
@@ -75,7 +95,7 @@ namespace Sukupuut
                 etunimi = value;
             }
         }
-
+        [DataMember]
         public string Sukunimi
         {
             get
@@ -102,6 +122,7 @@ namespace Sukupuut
             }
         }
 
+        [DataMember]
         public DateTime Syntymäaika
         {
             get

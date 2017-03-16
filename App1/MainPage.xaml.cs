@@ -26,75 +26,101 @@ namespace App1
     public sealed partial class MainPage : Page
     {
         Sukupuu sukupuu;
+        private const string strSaveFileName = "sukupuu.xml";
         public MainPage()
         {
             this.InitializeComponent();
-            sukupuu = Sukupuu.getInstance();
+            Application.Current.Suspending += Current_Suspending;
+            Application.Current.Resuming += Current_Resuming;
+            Sukupuu = Sukupuu.getInstance();
+        }
+
+        private void Current_Resuming(object sender, object e)
+        {
+            
+        }
+
+        private void Current_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
+        {
+            sukupuu.Save(strSaveFileName);
         }
 
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
-            Henkilö toni = new Henkilö("Toni", "Laitinen");
-            Henkilö pertti = new Henkilö("Pertti", "Laitinen");
+            sukupuu.Load(strSaveFileName);
+            // first run only
+            if (sukupuu.GetAll().Count == 0)
+            {
+                Henkilö toni = new Henkilö("Toni", "Laitinen");
+                Henkilö pertti = new Henkilö("Pertti", "Laitinen");
 
-            Henkilö emil = new Henkilö("Emil", "Laitinen");
-            emil.Syntymäaika = new DateTime(1894, 5, 18);
+                Henkilö emil = new Henkilö("Emil", "Laitinen");
+                emil.Syntymäaika = new DateTime(1894, 5, 18);
 
-            Henkilö elvi = new Henkilö("Elvi", "Laitinen");
-            elvi.Syntymäaika = new DateTime(1900, 1, 1);
-            pertti.Äiti = elvi;
+                Henkilö elvi = new Henkilö("Elvi", "Laitinen");
+                elvi.Syntymäaika = new DateTime(1900, 1, 1);
+                //pertti.Äiti = elvi;
 
-            Henkilö albin = new Henkilö("Albin", "Laitinen");
-            albin.Syntymäaika = new DateTime(1871, 11, 21);
+                Henkilö albin = new Henkilö("Albin", "Laitinen");
+                albin.Syntymäaika = new DateTime(1871, 11, 21);
 
-            Henkilö hilda = new Henkilö("Hilda", "Matilainen");
-            hilda.Syntymäaika = new DateTime(1872,5,14);
-            emil.Äiti = hilda;
+                Henkilö hilda = new Henkilö("Hilda", "Matilainen");
+                hilda.Syntymäaika = new DateTime(1872, 5, 14);
+                //emil.Äiti = hilda;
 
-            Henkilö herman = new Henkilö("Herman", "Laitinen");
-            herman.Patronyymi = "Elias";
-            herman.Syntymäaika = new DateTime(1849, 2, 18);
+                Henkilö herman = new Henkilö("Herman", "Laitinen");
+                herman.Patronyymi = "Elias";
+                herman.Syntymäaika = new DateTime(1849, 2, 18);
 
-            Henkilö annakaisa = new Henkilö("Anna Kaisa", "Matilainen");
-            annakaisa.Syntymäaika = new DateTime(1828,2,27);
-            albin.Äiti = annakaisa;
+                Henkilö annakaisa = new Henkilö("Anna Kaisa", "Matilainen");
+                annakaisa.Syntymäaika = new DateTime(1828, 2, 27);
+                //albin.Äiti = annakaisa;
 
-            Henkilö elias = new Henkilö("Elias", "Eliasson");
-            elias.Patronyymi = "Elias";
-            elias.Syntymäaika = new DateTime(1812, 3, 20);
+                Henkilö elias = new Henkilö("Elias", "Eliasson");
+                elias.Patronyymi = "Elias";
+                elias.Syntymäaika = new DateTime(1812, 3, 20);
 
-            Henkilö elias2  = new Henkilö("Elias", "Henricsson");
-            elias2.Syntymäaika = new DateTime(1782, 5, 8);
-            elias2.Patronyymi = "Henric";
+                Henkilö elias2 = new Henkilö("Elias", "Henricsson");
+                elias2.Syntymäaika = new DateTime(1782, 5, 8);
+                elias2.Patronyymi = "Henric";
 
-            toni.Isä = pertti;
-            pertti.Isä = emil;
-            pertti.Äiti = elvi;
-            emil.Isä = albin;
-            emil.Äiti = hilda;
-            albin.Isä = herman;
-            albin.Äiti = annakaisa;
-            herman.Isä = elias;
-            elias.Isä = elias2;
-            sukupuu.Add(toni);
-            sukupuu.Add(pertti);
-            sukupuu.Add(emil);
-            sukupuu.Add(albin);
-            sukupuu.Add(herman);
-            sukupuu.Add(elias);
-            sukupuu.Add(elias2);
+                int index = sukupuu.Add(elias2);
+                elias.Isä = index;
+                index = sukupuu.Add(elias);
+                herman.Isä = index;
 
+                albin.Isä = sukupuu.Add(herman);
+                index = sukupuu.Add(annakaisa);
+                albin.Äiti = index;
+
+                emil.Isä = sukupuu.Add(albin);
+                index = sukupuu.Add(hilda);
+                emil.Äiti = index;
+
+                pertti.Isä = sukupuu.Add(emil);
+                index = sukupuu.Add(elvi);
+                pertti.Äiti = index;
+
+                index = sukupuu.Add(pertti);
+                toni.Isä = index;
+                sukupuu.Add(toni);
+            }
+             //                                                          
+            
         }
 
         int y = 100;
+
+        public Sukupuu Sukupuu { get => sukupuu; set => sukupuu = value; }
+
         private void button_Click(object sender, RoutedEventArgs e)
         {
             y = 100;
             testRect.Text = "Testi";
             StringBuilder sb = new StringBuilder();
             List<Henkilö> kaikki = sukupuu.GetAll();
-            Henkilö eka = kaikki.Find(x => x.Etunimi.Contains("Toni"));
-
+            Henkilö eka = kaikki.Find(x => x != null && x.Etunimi.Contains("Toni"));
+            if (eka == null) return;//TODO: virheilmoitus
             sb.Append(eka);
 
             do
@@ -111,9 +137,9 @@ namespace App1
 
                 y += tc.Height1 + 20;
                 // äiti
-                if (eka.Äiti != null)
+                if (eka.Äiti >=0)
                 { 
-                    Henkilö mama = eka.Äiti;
+                    Henkilö mama = kaikki[eka.Äiti];
                     TextCanvas tcm = new TextCanvas(mama);
                     
                     Canvas.SetTop(tcm, y);
@@ -123,8 +149,8 @@ namespace App1
 
                 //
                 
-                eka = eka.Isä;
-            } while (eka.Isä != null);
+                eka = kaikki[eka.Isä];
+            } while (eka.Isä >=0);
             textBlock.Text = sb.ToString();
             textCanvas.Text = "Moi2";
         }
@@ -166,32 +192,54 @@ namespace App1
                     ContentDialog1 cd = new ContentDialog1();
                     cd.PrimaryButtonText = "Lisää isänä";
                     cd.SecondaryButtonText = "Lisää äitinä";
-                    Henkilö uusi = cd.GetDetails();
+                    
                     Henkilö origin = t.Content as Henkilö;
                     cd.Year = origin.Syntymäaika.Year - 20;
 
                     ContentDialogResult res = await cd.ShowAsync();
-                    
-                    int indeksi = sukupuu.GetAll().IndexOf(origin);
+
+                    Henkilö uusi = cd.GetDetails();
+                    int indeksi = Sukupuu.GetAll().IndexOf(origin);
 
                     // dialogissa "Lisää isänä" ja "Lisää äitinä"
-                    if (!sukupuu.GetAll().Contains(uusi))
+                    
+                    if (!Sukupuu.GetAll().Contains(uusi))
                     {
+                        //TODO: lisää oikeaksi isäksi
                         if (res == ContentDialogResult.Primary)
                         {
-                            sukupuu.Add(uusi);
-                            sukupuu.GetAll()[indeksi].Isä = uusi;
+                            origin.Isä = sukupuu.Add(uusi);                             
+
+                            //sukupuu.GetAll()[indeksi].Isä = uusi;
                             this.button_Click(sender, e);
                         }
                         else if (res == ContentDialogResult.Secondary)
                         {
-                            sukupuu.Add(uusi);
-                            sukupuu.GetAll()[indeksi].Äiti = uusi;
+                            origin.Äiti = sukupuu.Add(uusi);
+                            
+                            //sukupuu.GetAll()[indeksi].Äiti = uusi;
                             this.button_Click(sender, e);
                         }
                     }
                 }                
             }
+        }
+
+        private void Page_Unloaded(object sender, RoutedEventArgs e)
+        {
+            
+        }
+
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            base.OnNavigatedFrom(e);
+            sukupuu.Save(strSaveFileName);
+        }
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+            sukupuu.Load(strSaveFileName);
         }
     }
 }
